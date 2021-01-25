@@ -75,10 +75,6 @@ have_sudo_access() {
     HAVE_SUDO_ACCESS="$?"
   fi
 
-  if [[ -z "${CLOUDENV_ON_LINUX-}" ]] && [[ "$HAVE_SUDO_ACCESS" -ne 0 ]]; then
-    abort "Need sudo access on macOS (e.g. the user $USER to be an Administrator)!"
-  fi
-
   return "$HAVE_SUDO_ACCESS"
 }
 
