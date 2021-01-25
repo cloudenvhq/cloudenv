@@ -38,6 +38,8 @@ else
   TOUCH="/bin/touch"
 fi
 
+REQUIRED_BASH_VERSION=4
+
 CLOUDENV_BIN="https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv"
 
 # string formatters
@@ -180,6 +182,21 @@ get_group() {
 file_not_grpowned() {
   [[ " $(id -G "$USER") " != *" $(get_group "$1") "*  ]]
 }
+
+outdated_bash() {
+  local bash_version
+  bash_version=$(bash --version | head -n1 | sed 's/^[^0-9]*//;s/[^0-9].*$//')
+  version_lt "$bash_version" "$REQUIRED_BASH_VERSION"
+}
+
+if outdated_bash; then
+  abort "$(cat <<-EOFABORT
+  CloudEnv requires bash $REQUIRED_BASH_VERSION (or higher) which was not found on your system.
+  Install bash $REQUIRED_BASH_VERSION (or higher) and add its location to your PATH.
+  On Mac OS X, try running: brew install bash
+EOFABORT
+    )"
+fi
 
 # USER isn't always set so provide a fall back for the installer and subprocesses.
 if [[ -z "${USER-}" ]]; then
