@@ -1,3 +1,3 @@
 # CloudEnv
 
-$ curl -Ls https://raw.githubusercontent.com/cloudenvhq/install/main/install.sh | sh
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/cloudenvhq/install/main/install.sh)"

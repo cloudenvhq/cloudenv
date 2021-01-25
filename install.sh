@@ -240,9 +240,7 @@ else
   fi
 fi
 
-if [[ "${EUID:-${UID}}" == "0" ]]; then
-  abort "Don't run this as root!"
-elif [[ -d "${CLOUDENV_PREFIX}" && ! -x "${CLOUDENV_PREFIX}" ]]; then
+if [[ -d "${CLOUDENV_PREFIX}" && ! -x "${CLOUDENV_PREFIX}" ]]; then
   abort "$(cat <<EOABORT
 The CloudEnv prefix, ${CLOUDENV_PREFIX}, exists but is not searchable.
 If this is not intentional, please restore the default permissions and
