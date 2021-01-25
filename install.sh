@@ -206,10 +206,10 @@ EOABORT
 fi
 
 echo
-ohai "This script will download the CloudEnv CLI:"
+ohai "This script downloads the CloudEnv CLI:"
 echo " sudo curl ${tty_underline}https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv${tty_reset} -o ${CLOUDENV_PREFIX}/bin/cloudenv"
 echo
-ohai "and then run this command to make it executable:"
+ohai "and then runs this command to make it executable:"
 echo " sudo chmod +x ${CLOUDENV_PREFIX}/bin/cloudenv"
 echo
 
