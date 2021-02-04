@@ -320,7 +320,7 @@ ohai "Downloading and installing CloudEnv..."
   else
     execute_sudo "curl" "${CLOUDENV_BIN}" "-o" "${CLOUDENV_PREFIX}/bin/cloudenv"
     execute_sudo "/bin/chmod" "+x" "${CLOUDENV_PREFIX}/bin/cloudenv"
-    execute_sudo "/bin/chown" "$(whoami)" "${CLOUDENV_PREFIX}/bin/cloudenv"
+    execute_sudo "$CHOWN" "$USER" "${CLOUDENV_PREFIX}/bin/cloudenv"
   fi
 ) || exit 1
 
