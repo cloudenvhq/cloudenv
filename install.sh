@@ -330,9 +330,9 @@ fi
 
 if [[ ! -z "${REPLACE_BASH_WITH_ZSH-}" ]]; then
   top='#!/usr/bin/env zsh'
-  rest=$(awk 'NR > 1 { print }' "${CLOUDENV_PREFIX}/bin/cloudenv")
-  echo "$top" > "${CLOUDENV_PREFIX}/bin/cloudenv"
-  echo "$rest" >> "${CLOUDENV_PREFIX}/bin/cloudenv"
+  rest=$(awk 'NR > 1 { print }' "$CLOUDENV_PREFIX/bin/cloudenv")
+  echo "$top" > "$CLOUDENV_PREFIX/bin/cloudenv"
+  echo "$rest" >> "$CLOUDENV_PREFIX/bin/cloudenv"
 fi
 
 ohai "Installation successful!"
