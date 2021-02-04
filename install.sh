@@ -250,66 +250,66 @@ if [[ -z "${NONINTERACTIVE-}" ]]; then
   wait_for_user
 fi
 
-if [[ -z "${CLOUDENV_ON_LINUX-}" ]]; then
-  have_sudo_access
-else
-  if [[ -n "${NONINTERACTIVE-}" ]] ||
-     [[ -w "${CLOUDENV_PREFIX_DEFAULT}" ]] ||
-     [[ -w "/home/linuxbrew" ]] ||
-     [[ -w "/home" ]]; then
-    CLOUDENV_PREFIX="$CLOUDENV_PREFIX_DEFAULT"
-  else
-    trap exit SIGINT
-    if ! /usr/bin/sudo -n -v &>/dev/null; then
-      ohai "Select the CloudEnv installation directory"
-      echo "- ${tty_bold}Enter your password${tty_reset} to install to ${tty_underline}${CLOUDENV_PREFIX_DEFAULT}${tty_reset} (${tty_bold}recommended${tty_reset})"
-      echo "- ${tty_bold}Press Control-D${tty_reset} to install to ${tty_underline}$HOME/.linuxbrew${tty_reset}"
-      echo "- ${tty_bold}Press Control-C${tty_reset} to cancel installation"
-    fi
-    if have_sudo_access; then
-      CLOUDENV_PREFIX="$CLOUDENV_PREFIX_DEFAULT"
-    fi
-    trap - SIGINT
-  fi
-fi
-
-if [[ -d "${CLOUDENV_PREFIX}" && ! -x "${CLOUDENV_PREFIX}" ]]; then
-  abort "$(cat <<EOABORT
-The CloudEnv prefix, ${CLOUDENV_PREFIX}, exists but is not searchable.
-If this is not intentional, please restore the default permissions and
-try running the installer again:
-    sudo chmod 775 ${CLOUDENV_PREFIX}
-EOABORT
-)"
-fi
-
-directories=(bin)
-mkdirs=()
-for dir in "${directories[@]}"; do
-  if ! [[ -d "${CLOUDENV_PREFIX}/${dir}" ]]; then
-    mkdirs+=("${CLOUDENV_PREFIX}/${dir}")
-  fi
-done
-
-if [[ "${#mkdirs[@]}" -gt 0 ]]; then
-  ohai "The following new directories will be created:"
-  printf "%s\n" "${mkdirs[@]}"
-fi
-
-if [[ ! -d "${CLOUDENV_PREFIX}" ]]; then
-  execute_sudo "/bin/mkdir" "-p" "${CLOUDENV_PREFIX}"
+if [ ! -w "${CLOUDENV_PREFIX}/bin/cloudenv" ]; then
   if [[ -z "${CLOUDENV_ON_LINUX-}" ]]; then
-    execute_sudo "$CHOWN" "root:wheel" "${CLOUDENV_PREFIX}"
+    have_sudo_access
   else
-    execute_sudo "$CHOWN" "$USER:$GROUP" "${CLOUDENV_PREFIX}"
+    if [[ -n "${NONINTERACTIVE-}" ]] ||
+       [[ -w "${CLOUDENV_PREFIX_DEFAULT}" ]] ||
+       [[ -w "/home" ]]; then
+      CLOUDENV_PREFIX="$CLOUDENV_PREFIX_DEFAULT"
+    else
+      trap exit SIGINT
+      if ! /usr/bin/sudo -n -v &>/dev/null; then
+        ohai "Select the CloudEnv installation directory"
+        echo "- ${tty_bold}Enter your password${tty_reset} to install to ${tty_underline}${CLOUDENV_PREFIX_DEFAULT}${tty_reset} (${tty_bold}recommended${tty_reset})"
+        echo "- ${tty_bold}Press Control-C${tty_reset} to cancel installation"
+      fi
+      if have_sudo_access; then
+        CLOUDENV_PREFIX="$CLOUDENV_PREFIX_DEFAULT"
+      fi
+      trap - SIGINT
+    fi
   fi
-fi
 
-if [[ "${#mkdirs[@]}" -gt 0 ]]; then
-  execute_sudo "/bin/mkdir" "-p" "${mkdirs[@]}"
-  execute_sudo "/bin/chmod" "g+rwx" "${mkdirs[@]}"
-  execute_sudo "$CHOWN" "$USER" "${mkdirs[@]}"
-  execute_sudo "$CHGRP" "$GROUP" "${mkdirs[@]}"
+  if [[ -d "${CLOUDENV_PREFIX}" && ! -x "${CLOUDENV_PREFIX}" ]]; then
+    abort "$(cat <<EOABORT
+  The CloudEnv prefix, ${CLOUDENV_PREFIX}, exists but is not searchable.
+  If this is not intentional, please restore the default permissions and
+  try running the installer again:
+      sudo chmod 775 ${CLOUDENV_PREFIX}
+EOABORT
+  )"
+  fi
+
+  directories=(bin)
+  mkdirs=()
+  for dir in "${directories[@]}"; do
+    if ! [[ -d "${CLOUDENV_PREFIX}/${dir}" ]]; then
+      mkdirs+=("${CLOUDENV_PREFIX}/${dir}")
+    fi
+  done
+
+  if [[ "${#mkdirs[@]}" -gt 0 ]]; then
+    ohai "The following new directories will be created:"
+    printf "%s\n" "${mkdirs[@]}"
+  fi
+
+  if [[ ! -d "${CLOUDENV_PREFIX}" ]]; then
+    execute_sudo "/bin/mkdir" "-p" "${CLOUDENV_PREFIX}"
+    if [[ -z "${CLOUDENV_ON_LINUX-}" ]]; then
+      execute_sudo "$CHOWN" "root:wheel" "${CLOUDENV_PREFIX}"
+    else
+      execute_sudo "$CHOWN" "$USER:$GROUP" "${CLOUDENV_PREFIX}"
+    fi
+  fi
+
+  if [[ "${#mkdirs[@]}" -gt 0 ]]; then
+    execute_sudo "/bin/mkdir" "-p" "${mkdirs[@]}"
+    execute_sudo "/bin/chmod" "g+rwx" "${mkdirs[@]}"
+    execute_sudo "$CHOWN" "$USER" "${mkdirs[@]}"
+    execute_sudo "$CHGRP" "$GROUP" "${mkdirs[@]}"
+  fi
 fi
 
 ohai "Downloading and installing CloudEnv..."
@@ -328,10 +328,9 @@ if [[ ":${PATH}:" != *":${CLOUDENV_PREFIX}/bin:"* ]]; then
   warn "${CLOUDENV_PREFIX}/bin is not in your PATH."
 fi
 
-if [[ -z "${REPLACE_BASH_WITH_ZSH-}" ]]; then
-  top='#!/usr/bin/env zsh'
-  rest=$(awk 'NR > 1 { print }' "${CLOUDENV_PREFIX}/bin/cloudenv")
-  echo "$top\n$rest" > "${CLOUDENV_PREFIX}/bin/cloudenv"
+if [[ ! -z "${REPLACE_BASH_WITH_ZSH-}" ]]; then
+  echo '#!/usr/bin/env zsh' > "${CLOUDENV_PREFIX}/bin/cloudenv"
+  echo $(awk 'NR > 1 { print }' "${CLOUDENV_PREFIX}/bin/cloudenv") >> "${CLOUDENV_PREFIX}/bin/cloudenv"
 fi
 
 ohai "Installation successful!"
