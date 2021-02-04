@@ -201,7 +201,7 @@ outdated_bash() {
 
 if outdated_bash
 then
-  if ! command -v zsh >/dev/null
+  if command -v zsh >/dev/null
   then
     REPLACE_BASH_WITH_ZSH=1
   else
