@@ -14,6 +14,16 @@ abort() {
 
 UNAME_MACHINE="$(uname -m)"
 
+# First check OS.
+OS="$(uname)"
+if [[ "$OS" == "Linux" ]]; then
+  CLOUDENV_ON_LINUX=1
+elif [[ "$OS" == "Darwin" ]]; then
+  CLOUDENV_ON_MAC=1
+elif [[ "$OS" != "Darwin" ]]; then
+  abort "CloudEnv is currently only supported on macOS and Linux."
+fi
+
 # Required installation paths. To install elsewhere (which is unsupported)
 # you can untar https://github.com/CloudEnv/brew/tarball/master
 # anywhere you like.
@@ -189,13 +199,19 @@ outdated_bash() {
   version_lt "$bash_version" "$REQUIRED_BASH_VERSION"
 }
 
-if outdated_bash; then
-  abort "$(cat <<-EOFABORT
-  CloudEnv requires bash $REQUIRED_BASH_VERSION (or higher) which was not found on your system.
-  Install bash $REQUIRED_BASH_VERSION (or higher) and add its location to your PATH.
-  On Mac OS X, try running: brew install bash
+if outdated_bash
+then
+  if ! command -v zsh >/dev/null
+  then
+    REPLACE_BASH_WITH_ZSH=1
+  else
+    abort "$(cat <<-EOFABORT
+    CloudEnv requires bash $REQUIRED_BASH_VERSION (or higher) which was not found on your system.
+    Install bash $REQUIRED_BASH_VERSION (or higher) and add its location to your PATH.
+    On Mac OS X, try running: brew install bash
 EOFABORT
-    )"
+      )"
+  fi
 fi
 
 # USER isn't always set so provide a fall back for the installer and subprocesses.
@@ -298,12 +314,24 @@ fi
 
 ohai "Downloading and installing CloudEnv..."
 (
-  execute_sudo "curl" "${CLOUDENV_BIN}" "-o" "${CLOUDENV_PREFIX}/bin/cloudenv"
-  execute_sudo "/bin/chmod" "+x" "${CLOUDENV_PREFIX}/bin/cloudenv"
+  if [ -w "${CLOUDENV_PREFIX}/bin/cloudenv" ]; then
+    execute "curl" "${CLOUDENV_BIN}" "-o" "${CLOUDENV_PREFIX}/bin/cloudenv"
+    execute "/bin/chmod" "+x" "${CLOUDENV_PREFIX}/bin/cloudenv"
+  else
+    execute_sudo "curl" "${CLOUDENV_BIN}" "-o" "${CLOUDENV_PREFIX}/bin/cloudenv"
+    execute_sudo "/bin/chmod" "+x" "${CLOUDENV_PREFIX}/bin/cloudenv"
+    execute_sudo "/bin/chown" "$(whoami)" "${CLOUDENV_PREFIX}/bin/cloudenv"
+  fi
 ) || exit 1
 
 if [[ ":${PATH}:" != *":${CLOUDENV_PREFIX}/bin:"* ]]; then
   warn "${CLOUDENV_PREFIX}/bin is not in your PATH."
+fi
+
+if [[ -z "${REPLACE_BASH_WITH_ZSH-}" ]]; then
+  top='#!/usr/bin/env zsh'
+  rest=$(awk 'NR > 1 { print }' "${CLOUDENV_PREFIX}/bin/cloudenv")
+  echo "$top\n$rest" > "${CLOUDENV_PREFIX}/bin/cloudenv"
 fi
 
 ohai "Installation successful!"
