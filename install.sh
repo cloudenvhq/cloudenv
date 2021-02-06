@@ -13,6 +13,7 @@ abort() {
 }
 
 UNAME_MACHINE="$(uname -m)"
+CLOUDENV_PREFIX="/usr/local"
 
 # First check OS.
 OS="$(uname)"
@@ -28,13 +29,6 @@ fi
 # you can untar https://github.com/CloudEnv/brew/tarball/master
 # anywhere you like.
 if [[ -z "${CLOUDENV_ON_LINUX-}" ]]; then
-  if [[ "$UNAME_MACHINE" == "arm64" ]]; then
-    CLOUDENV_PREFIX="/usr/local"
-  else
-    # On Intel macOS, this script installs to /usr/local only
-    CLOUDENV_PREFIX="/usr/local"
-  fi
-
   STAT="stat -f"
   CHOWN="/usr/sbin/chown"
   CHGRP="/usr/bin/chgrp"
