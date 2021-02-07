@@ -14,6 +14,7 @@ abort() {
 
 UNAME_MACHINE="$(uname -m)"
 CLOUDENV_PREFIX="/usr/local"
+CLOUDENV_PREFIX_DEFAULT="/usr/local"
 
 # First check OS.
 OS="$(uname)"
