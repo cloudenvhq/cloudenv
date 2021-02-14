@@ -15,7 +15,7 @@ CLOUDENV_BIN="https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv"
 
 # Step 4 is not technically necessary but makes upgrading the CLI easier since it won't need sudo
 
-# There is one additional step if your bash is older than v3 but you have zsh installed
+# There is one additional step if your bash is older than v4 but you have zsh installed
 # (like many new Macs come out of the box) This script will download the bash script and
 # rewrite the header to use zsh instead of bash since this script is compatible with zsh
 
