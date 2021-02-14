@@ -1,6 +1,24 @@
 #!/bin/bash
 set -u
 
+CLOUDENV_PREFIX="/usr/local"
+CLOUDENV_BIN="https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv"
+
+# README
+
+# This script does the following steps. You are welcome to do these without running this script at all.
+ 
+# 1) Check for dependencies (bash, curl, openssl, gpg)
+# 2) curl https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv -o /usr/local/bin/cloudenv
+# 3) chmod +x /usr/local/bin/cloudenv
+# 4) chown `whoami` /usr/local/bin/cloudenv
+
+# Step 4 is not technically necessary but makes upgrading the CLI easier since it won't need sudo
+
+# There is one additional step if your bash is older than v3 but you have zsh installed
+# (like many new Macs come out of the box) This script will download the bash script and
+# rewrite the header to use zsh instead of bash since this script is compatible with zsh
+
 # Check if script is run non-interactively (e.g. CI)
 # If it is run non-interactively we should not prompt for passwords.
 if [ "$EUID" -eq 0 ]; then
@@ -13,7 +31,6 @@ abort() {
 }
 
 UNAME_MACHINE="$(uname -m)"
-CLOUDENV_PREFIX="/usr/local"
 CLOUDENV_PREFIX_DEFAULT="/usr/local"
 
 # First check OS.
@@ -44,8 +61,6 @@ else
 fi
 
 REQUIRED_BASH_VERSION=4
-
-CLOUDENV_BIN="https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv"
 
 # string formatters
 if [[ -t 1 ]]; then
@@ -235,7 +250,7 @@ fi
 
 echo
 ohai "This script downloads the CloudEnv CLI:"
-echo " curl ${tty_underline}https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv${tty_reset} -o ${CLOUDENV_PREFIX}/bin/cloudenv"
+echo " curl ${tty_underline}$CLOUDENV_BIN${tty_reset} -o $CLOUDENV_PREFIX/bin/cloudenv"
 echo
 ohai "and then runs this command to make it executable:"
 echo " chmod +x ${CLOUDENV_PREFIX}/bin/cloudenv"
