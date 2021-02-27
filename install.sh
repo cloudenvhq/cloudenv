@@ -8,7 +8,7 @@ CLOUDENV_BIN="https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv"
 
 # This script does the following steps. You are welcome to do these without running this script at all.
  
-# 1) Check for dependencies (bash, curl, openssl, gpg)
+# 1) Check for dependencies (bash, curl, openssl)
 # 2) curl https://raw.githubusercontent.com/cloudenvhq/cli/master/cloudenv -o /usr/local/bin/cloudenv
 # 3) chmod +x /usr/local/bin/cloudenv
 # 4) chown `whoami` /usr/local/bin/cloudenv
